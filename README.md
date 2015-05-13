@@ -1,2 +1,3 @@
 # arduino
-Arduino learning projects.
+
+This repository will contain different Arduino projects.
