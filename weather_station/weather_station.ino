@@ -14,7 +14,7 @@
 #define DHT_OUTDOOR_PIN     6
 #define DHTTYPE_INDOOR      DHT11
 #define DHTTYPE_OUTDOOR     DHT22
-#define QUERY_INTERVAL      5000
+#define QUERY_INTERVAL      4000
 
 // Define every sensor.
 DHT dht_bathroom   (DHT_BATHROOM_PIN,   DHTTYPE_INDOOR);
@@ -55,15 +55,17 @@ void loop() {
     }
   }
 
-  // Print the results to serial port, each sensor information in a different line,
-  // a comma separated values, with the sensor ID at the beggining, the humidity next and
-  // temperature at the end.
+  // Start with a new line to clean every other output.
+  Serial.println("");
+  // Print the results to serial port, each sensor information separated by ';',
+  // Sensor information is a comma separated values, with the sensor ID at the beggining,
+  // the humidity next and temperature at the end.
   for (int i = 0; i < TOTAL_SENSORS; i = i + 1) {
     Serial.print(i);
     Serial.print(",");
     Serial.print(a_hum[i]);
     Serial.print(",");
     Serial.print(a_temp[i]);
-    Serial.println("");
+    Serial.print(";");
   }
 }
