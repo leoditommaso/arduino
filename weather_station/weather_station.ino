@@ -5,7 +5,7 @@
 // DHT library for DHT sensors.
 #include "DHT.h"
 
-// Some constants for later usage.
+// Sensors configuration constants.
 #define TOTAL_SENSORS       5
 #define DHT_BATHROOM_PIN    2
 #define DHT_BEDROOM_PIN     3
@@ -14,7 +14,10 @@
 #define DHT_OUTDOOR_PIN     6
 #define DHTTYPE_INDOOR      DHT11
 #define DHTTYPE_OUTDOOR     DHT22
-#define QUERY_INTERVAL      4000
+
+// Some other configuration constants.
+#define QUERY_INTERVAL      5000
+#define SERIAL_BAUD_RATE    115200
 
 // Define every sensor.
 DHT dht_bathroom   (DHT_BATHROOM_PIN,   DHTTYPE_INDOOR);
@@ -26,9 +29,13 @@ DHT dht_outdoor    (DHT_OUTDOOR_PIN,    DHTTYPE_OUTDOOR);
 // This array will contain each sensor.
 DHT sensors[TOTAL_SENSORS] = { dht_bathroom, dht_bedroom, dht_diningroom, dht_kitchen, dht_outdoor };
 
+// The following two arrays will store humidity and temperature information read from each sensor.
+float a_hum[TOTAL_SENSORS];
+float a_temp[TOTAL_SENSORS];
+
 void setup() {
   // Setup serial port.
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUD_RATE);
   // Initialize sensors.
   for (int i = 0; i < TOTAL_SENSORS; i = i + 1) {
     sensors[i].begin();
@@ -38,10 +45,6 @@ void setup() {
 void loop() {
   // Execute the loop code every QUERY_INTERVAL seconds.
   delay(QUERY_INTERVAL);
-
-  // The following two arrays will store humidity and temperature information from each sensor.
-  float a_hum[TOTAL_SENSORS];
-  float a_temp[TOTAL_SENSORS];
 
   // Reads humidity and temperature from each sensor.
   for (int i = 0; i < TOTAL_SENSORS; i++) {
@@ -55,17 +58,23 @@ void loop() {
     }
   }
 
-  // Start with a new line to clean every other output.
-  Serial.println("");
-  // Print the results to serial port, each sensor information separated by ';',
+  // Initialize a new string which will hold all sensors values.
+  String output = "";
+
+  // Creates a new string holding every sensor information, separated by ';',
   // Sensor information is a comma separated values, with the sensor ID at the beggining,
   // the humidity next and temperature at the end.
   for (int i = 0; i < TOTAL_SENSORS; i = i + 1) {
-    Serial.print(i);
-    Serial.print(",");
-    Serial.print(a_hum[i]);
-    Serial.print(",");
-    Serial.print(a_temp[i]);
-    Serial.print(";");
+    output = output + i + "," + a_hum[i] + "," + a_temp[i] + ";";
   }
+
+  // Appends EOI special string as a final delimiter to output string.
+  output = output + "EOI";
+
+  // Print the output string to the serial port.
+  Serial.println(output);
+
+  // Waits for the print to output the information to serial port before
+  // going on with program execution.
+  Serial.flush();
 }
